@@ -14,27 +14,26 @@ export interface RoomRequest {
 }
 
 class ApiService {
-  private apiEndpoint: string = 'https://example.com/api/rooms'; // Replace with actual endpoint
+  private apiEndpoint: string = 'http://192.168.1.6:80/command'; // Replace with actual endpoint
 
   public async sendRoomRequest(request: RoomRequest): Promise<boolean> {
     try {
       console.log('Sending room request:', JSON.stringify(request, null, 2));
       
-      // In a real application, you would uncomment this and use a real API endpoint
-      // const response = await fetch(this.apiEndpoint, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(request),
-      // });
+      const response = await fetch(this.apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request), 
+      });
       
-      // if (!response.ok) {
-      //   throw new Error(`API request failed with status ${response.status}`);
-      // }
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
       
-      // const data = await response.json();
-      // console.log('API response:', data);
+      const data = await response
+      console.log('API response:', data);
       
       // Simulating successful API call
       toast.success(`Room ${request.roomID} updated successfully`);
