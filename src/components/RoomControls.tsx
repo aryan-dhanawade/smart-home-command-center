@@ -137,7 +137,7 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
                 <SelectValue placeholder="Select mode" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 <SelectItem value="party">Party</SelectItem>
                 <SelectItem value="movie">Movie</SelectItem>
               </SelectContent>
