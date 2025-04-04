@@ -52,7 +52,8 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
   };
 
   const handleModeChange = (value: string) => {
-    const mode = value as '' | 'party' | 'movie';
+    // Convert "none" value to empty string for internal state
+    const mode = value === "none" ? "" : value as "" | 'party' | 'movie';
     setLocalStatus(prev => ({ ...prev, mode }));
   };
 
@@ -125,7 +126,7 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
           <div className="space-y-2">
             <Label htmlFor="mode" className="text-base">Mode</Label>
             <Select
-              value={localStatus.mode}
+              value={localStatus.mode === "" ? "none" : localStatus.mode}
               onValueChange={handleModeChange}
               disabled={localStatus.state === 'OFF'}
             >
@@ -133,7 +134,7 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
                 <SelectValue placeholder="Select mode" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 <SelectItem value="party">Party</SelectItem>
                 <SelectItem value="movie">Movie</SelectItem>
               </SelectContent>
