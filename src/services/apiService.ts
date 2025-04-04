@@ -38,6 +38,7 @@ class ApiService {
       
       // Simulating successful API call
       toast.success(`Room ${request.roomID} updated successfully`);
+      console.log(request);
       return true;
     } catch (error) {
       console.error('Error sending room request:', error);
