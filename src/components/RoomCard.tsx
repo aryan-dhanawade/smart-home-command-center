@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Room, Sofa, Moon } from 'lucide-react';
+import { Home, Sofa, Moon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 
@@ -19,7 +19,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ id, name, state }) => {
   };
 
   // Pick an icon based on room name
-  let RoomIcon = Room;
+  let RoomIcon = Home; // Changed from Room to Home
   if (name.toLowerCase().includes('living')) {
     RoomIcon = Sofa;
   } else if (name.toLowerCase().includes('bed')) {
