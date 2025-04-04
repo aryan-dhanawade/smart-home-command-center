@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 export interface RoomStatus {
   state: 'ON' | 'OFF';
   brightness: number;
-  mode: 'party' | 'movie' | '';
+  mode: '' | 'party' | 'movie';
   schedule: number;
 }
 

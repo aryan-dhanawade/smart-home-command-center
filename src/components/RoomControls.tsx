@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRoomContext } from '../context/RoomContext';
-import apiService from '../services/apiService';
+import apiService, { RoomStatus } from '../services/apiService';
 import { Label } from './ui/label';
 import { Switch } from './ui/switch';
 import { Slider } from './ui/slider';
@@ -23,10 +23,10 @@ interface RoomControlsProps {
 const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
   const { getRoomById, updateRoomStatus } = useRoomContext();
   const room = getRoomById(roomId);
-  const [localStatus, setLocalStatus] = useState(room?.status || {
+  const [localStatus, setLocalStatus] = useState<RoomStatus>(room?.status || {
     state: 'OFF',
     brightness: 50,
-    mode: 'none',
+    mode: '',
     schedule: 0
   });
 
@@ -52,7 +52,7 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
   };
 
   const handleModeChange = (value: string) => {
-    const mode = value as 'party' | 'movie' | 'none';
+    const mode = value as '' | 'party' | 'movie';
     setLocalStatus(prev => ({ ...prev, mode }));
   };
 
@@ -133,7 +133,7 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
                 <SelectValue placeholder="Select mode" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="">None</SelectItem>
                 <SelectItem value="party">Party</SelectItem>
                 <SelectItem value="movie">Movie</SelectItem>
               </SelectContent>

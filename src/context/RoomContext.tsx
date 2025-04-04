@@ -21,7 +21,7 @@ const defaultRooms: Room[] = [
     status: {
       state: 'OFF',
       brightness: 50,
-      mode: 'none',
+      mode: '',
       schedule: 0,
     },
   },
@@ -31,7 +31,7 @@ const defaultRooms: Room[] = [
     status: {
       state: 'OFF',
       brightness: 30,
-      mode: 'none',
+      mode: '',
       schedule: 0,
     },
   },
