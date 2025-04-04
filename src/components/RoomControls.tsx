@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRoomContext } from '../context/RoomContext';
 import apiService from '../services/apiService';
 import { Label } from './ui/label';
@@ -12,8 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Lightbulb, Clock, Calendar } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
+import { Lightbulb, Clock, Calendar, Send } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface RoomControlsProps {
   roomId: number;
@@ -22,62 +23,57 @@ interface RoomControlsProps {
 const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
   const { getRoomById, updateRoomStatus } = useRoomContext();
   const room = getRoomById(roomId);
+  const [localStatus, setLocalStatus] = useState(room?.status || {
+    state: 'OFF',
+    brightness: 50,
+    mode: 'none',
+    schedule: 0
+  });
 
   if (!room) {
     return <div>Room not found</div>;
   }
 
+  // Update local state when room changes
+  useEffect(() => {
+    if (room) {
+      setLocalStatus(room.status);
+    }
+  }, [room]);
+
   const handleStateChange = (checked: boolean) => {
     const newState = checked ? 'ON' : 'OFF';
-    updateRoomStatus(roomId, { state: newState });
-    
-    // Send API request
-    apiService.sendRoomRequest({
-      roomID: roomId,
-      status: { ...room.status, state: newState },
-    });
+    setLocalStatus(prev => ({ ...prev, state: newState }));
   };
 
   const handleBrightnessChange = (value: number[]) => {
     const brightness = value[0];
-    updateRoomStatus(roomId, { brightness });
-    
-    // Send API request
-    apiService.sendRoomRequest({
-      roomID: roomId,
-      status: { ...room.status, brightness },
-    });
+    setLocalStatus(prev => ({ ...prev, brightness }));
   };
 
   const handleModeChange = (value: string) => {
-    const mode = value as 'party' | 'movie' | '';
-    updateRoomStatus(roomId, { mode });
-    
-    // Send API request
-    apiService.sendRoomRequest({
-      roomID: roomId,
-      status: { ...room.status, mode },
-    });
+    const mode = value as 'party' | 'movie' | 'none';
+    setLocalStatus(prev => ({ ...prev, mode }));
   };
 
   const handleScheduleChange = (value: string) => {
     const schedule = parseInt(value, 10);
-    updateRoomStatus(roomId, { schedule });
+    setLocalStatus(prev => ({ ...prev, schedule }));
+  };
+
+  const handleSendCommand = () => {
+    // Update the room status in context
+    updateRoomStatus(roomId, localStatus);
     
-    // Send API request
+    // Send API request with all current values
     apiService.sendRoomRequest({
       roomID: roomId,
-      status: { ...room.status, schedule },
+      status: localStatus,
     });
   };
 
-  useEffect(() => {
-    // Initial API request when component mounts
-    apiService.sendRoomRequest({
-      roomID: roomId,
-      status: room.status,
-    });
-  }, [roomId]);
+  // No longer sending API requests on initial mount
+  // Just use the existing room state
 
   return (
     <div className="grid gap-4 md:grid-cols-2 animate-fade-in">
@@ -93,7 +89,7 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
             <Label htmlFor="state" className="text-base">Power</Label>
             <Switch
               id="state"
-              checked={room.status.state === 'ON'}
+              checked={localStatus.state === 'ON'}
               onCheckedChange={handleStateChange}
             />
           </div>
@@ -102,7 +98,7 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
             <div className="flex justify-between">
               <Label htmlFor="brightness" className="text-base">Brightness</Label>
               <span className="text-sm text-muted-foreground">
-                {room.status.brightness}%
+                {localStatus.brightness}%
               </span>
             </div>
             <Slider
@@ -110,9 +106,9 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
               min={0}
               max={100}
               step={1}
-              value={[room.status.brightness]}
+              value={[localStatus.brightness]}
               onValueChange={handleBrightnessChange}
-              disabled={room.status.state === 'OFF'}
+              disabled={localStatus.state === 'OFF'}
             />
           </div>
         </CardContent>
@@ -129,9 +125,9 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
           <div className="space-y-2">
             <Label htmlFor="mode" className="text-base">Mode</Label>
             <Select
-              value={room.status.mode}
+              value={localStatus.mode}
               onValueChange={handleModeChange}
-              disabled={room.status.state === 'OFF'}
+              disabled={localStatus.state === 'OFF'}
             >
               <SelectTrigger id="mode">
                 <SelectValue placeholder="Select mode" />
@@ -147,17 +143,17 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="schedule" className="text-base">Schedule (minutes)</Label>
-              {room.status.schedule > 0 && (
+              {localStatus.schedule > 0 && (
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Clock className="h-3 w-3 mr-1" />
-                  <span>{room.status.schedule} min</span>
+                  <span>{localStatus.schedule} min</span>
                 </div>
               )}
             </div>
             <Select
-              value={room.status.schedule.toString()}
+              value={localStatus.schedule.toString()}
               onValueChange={handleScheduleChange}
-              disabled={room.status.state === 'OFF'}
+              disabled={localStatus.state === 'OFF'}
             >
               <SelectTrigger id="schedule">
                 <SelectValue placeholder="Select duration" />
@@ -174,6 +170,23 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
           </div>
         </CardContent>
       </Card>
+
+      <div className="md:col-span-2">
+        <Card>
+          <CardContent className="pt-6">
+            <Button 
+              className="w-full" 
+              onClick={handleSendCommand}
+              disabled={room.status.state === localStatus.state && 
+                        room.status.brightness === localStatus.brightness &&
+                        room.status.mode === localStatus.mode &&
+                        room.status.schedule === localStatus.schedule}
+            >
+              <Send className="mr-2 h-4 w-4" /> Send Commands
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -10,7 +10,7 @@ interface Room {
 
 interface RoomContextType {
   rooms: Room[];
-  updateRoomStatus: (roomId: number, status: Partial<RoomStatus>) => void;
+  updateRoomStatus: (roomId: number, status: Partial<RoomStatus> | RoomStatus) => void;
   getRoomById: (roomId: number) => Room | undefined;
 }
 
@@ -21,7 +21,7 @@ const defaultRooms: Room[] = [
     status: {
       state: 'OFF',
       brightness: 50,
-      mode: '',
+      mode: 'none',
       schedule: 0,
     },
   },
@@ -31,7 +31,7 @@ const defaultRooms: Room[] = [
     status: {
       state: 'OFF',
       brightness: 30,
-      mode: '',
+      mode: 'none',
       schedule: 0,
     },
   },
@@ -42,7 +42,7 @@ const RoomContext = createContext<RoomContextType | undefined>(undefined);
 export const RoomProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [rooms, setRooms] = useState<Room[]>(defaultRooms);
 
-  const updateRoomStatus = (roomId: number, status: Partial<RoomStatus>) => {
+  const updateRoomStatus = (roomId: number, status: Partial<RoomStatus> | RoomStatus) => {
     setRooms(prevRooms =>
       prevRooms.map(room =>
         room.id === roomId
