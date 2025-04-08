@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
-import { Lightbulb, Clock, Calendar, Send } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Lightbulb, Clock, Calendar, Send, Eye, EyeOff } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface RoomControlsProps {
@@ -27,7 +27,8 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
     state: 'OFF',
     brightness: 50,
     mode: '',
-    schedule: 0
+    schedule: 0,
+    motionDetection: false
   });
 
   if (!room) {
@@ -62,6 +63,10 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
     setLocalStatus(prev => ({ ...prev, schedule }));
   };
 
+  const handleMotionDetectionChange = (checked: boolean) => {
+    setLocalStatus(prev => ({ ...prev, motionDetection: checked }));
+  };
+
   const handleSendCommand = () => {
     // Update the room status in context
     updateRoomStatus(roomId, localStatus);
@@ -72,9 +77,6 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
       status: localStatus,
     });
   };
-
-  // No longer sending API requests on initial mount
-  // Just use the existing room state
 
   return (
     <div className="grid gap-4 md:grid-cols-2 animate-fade-in">
@@ -172,6 +174,32 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
         </CardContent>
       </Card>
 
+      <Card className="room-card">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            {localStatus.motionDetection ? (
+              <Eye className="mr-2 h-5 w-5" />
+            ) : (
+              <EyeOff className="mr-2 h-5 w-5" />
+            )}
+            Motion Detection
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="motion-detection" className="text-base">
+              {localStatus.motionDetection ? "Enabled" : "Disabled"}
+            </Label>
+            <Switch
+              id="motion-detection"
+              checked={localStatus.motionDetection}
+              onCheckedChange={handleMotionDetectionChange}
+              disabled={localStatus.state === 'OFF'}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="md:col-span-2">
         <Card>
           <CardContent className="pt-6">
@@ -181,7 +209,8 @@ const RoomControls: React.FC<RoomControlsProps> = ({ roomId }) => {
               disabled={room.status.state === localStatus.state && 
                         room.status.brightness === localStatus.brightness &&
                         room.status.mode === localStatus.mode &&
-                        room.status.schedule === localStatus.schedule}
+                        room.status.schedule === localStatus.schedule &&
+                        room.status.motionDetection === localStatus.motionDetection}
             >
               <Send className="mr-2 h-4 w-4" /> Send Commands
             </Button>

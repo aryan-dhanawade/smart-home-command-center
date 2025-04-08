@@ -6,6 +6,7 @@ export interface RoomStatus {
   brightness: number;
   mode: '' | 'party' | 'movie';
   schedule: number;
+  motionDetection: boolean;
 }
 
 export interface RoomRequest {

@@ -23,6 +23,7 @@ const defaultRooms: Room[] = [
       brightness: 50,
       mode: '',
       schedule: 0,
+      motionDetection: false,
     },
   },
   {
@@ -33,6 +34,7 @@ const defaultRooms: Room[] = [
       brightness: 30,
       mode: '',
       schedule: 0,
+      motionDetection: false,
     },
   },
 ];
